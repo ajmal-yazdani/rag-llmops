@@ -4,3 +4,13 @@ version="0.1.0"
 description = "backend for ragnimals project"
 requires-python = ">=3.13"
 dependencies = ["lancedb", "pydantic-ai", "fastapi", "uvicorn", "mlflow"]
+
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["backend"]
+
+[tool.setuptools.package-dir]
+backend = "."
