@@ -34,6 +34,7 @@ pip-wheel-metadata/
 # ── Jupyter / ipykernel ───────────────────────────────────────────────────────
 .ipynb_checkpoints/
 *.ipynb
+!rag/src/rag/explorations/*.ipynb
 profile_default/
 ipython_config.py
 
