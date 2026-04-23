@@ -3281,17 +3281,21 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "backend" },
+    { name = "cohere" },
     { name = "frontend" },
     { name = "ipykernel" },
     { name = "pypdf" },
+    { name = "python-dotenv" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "backend", editable = "src/rag/backend" },
+    { name = "cohere", specifier = ">=5.15.0" },
     { name = "frontend", editable = "src/rag/frontend" },
     { name = "ipykernel", specifier = ">=7.2.0" },
     { name = "pypdf", specifier = ">=6.10.2" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
 ]
 
 [[package]]
