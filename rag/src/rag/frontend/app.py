@@ -18,7 +18,7 @@ def layout() -> None:
                 response = httpx.post(
                     API_URL,
                     json={"prompt": text_input},
-                    timeout=60.0,  # 60 second timeout for AI model responses
+                    timeout=120.0,  # 120 second timeout for AI model responses
                 )
                 response.raise_for_status()
                 data = response.json()

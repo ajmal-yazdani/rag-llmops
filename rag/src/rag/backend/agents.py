@@ -1,9 +1,10 @@
 from typing import cast
 
 import lancedb  # type: ignore[import-untyped]
+import mlflow
 from mlflow.genai import load_prompt
 from openai import AsyncAzureOpenAI
-from pydantic_ai import Agent
+from pydantic_ai import Agent, UsageLimits
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.azure import AzureProvider
 
@@ -57,6 +58,7 @@ def retrieve_top_documents(query: str, k: int = 3) -> str:
     )
 
 
+@mlflow.trace(span_type="RETRIEVER")
 def _retrieve(query: str, k: int) -> list[dict]:
     results = vector_db["articles"].search(query=query).limit(k).to_list()
     return [
@@ -71,6 +73,14 @@ def _retrieve(query: str, k: int) -> list[dict]:
     ]
 
 
-async def bot_answer(question: str) -> RagResponse:
-    result = await rag_agent.run(question)
-    return result.output
+@mlflow.trace
+async def bot_answer(question: str) -> RagResponse | str:
+    try:
+        result = await rag_agent.run(
+            question,
+            usage_limits=UsageLimits(request_limit=10),
+        )
+    except Exception as e:  # noqa: BLE001
+        return f"agent stopped early {e}"
+    else:
+        return result.output
