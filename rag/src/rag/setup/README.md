@@ -17,6 +17,8 @@ C:\AI\rag-llmops\rag\src\rag\setup
 # run with uv workspace environment
 uv run .\pdfs_to_text.py
 uv run .\ingestion.py
+
+
 ```
 
 ## Notes
