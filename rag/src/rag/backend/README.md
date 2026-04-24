@@ -2,6 +2,9 @@
 
 cd C:\AI\rag-llmops\rag\src\rag\backend
 uv run uvicorn api:app --reload
+
+cd C:\AI\rag-llmops\rag\src\rag
+uv run uvicorn rag.backend.api:app --reload
 <http://127.0.0.1:8000/docs>
 
 ## Story Understanding Questions
