@@ -1,8 +1,11 @@
+from typing import cast
+
 import lancedb  # type: ignore[import-untyped]
+from mlflow.genai import load_prompt
 from openai import AsyncAzureOpenAI
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
-from pydantic_ai.providers.openai import OpenAIProvider
+from pydantic_ai.providers.azure import AzureProvider
 
 from rag.backend.constants import (
     AZURE_OPENAI_API_KEY,
@@ -21,12 +24,20 @@ azure_client = AsyncAzureOpenAI(
     api_key=AZURE_OPENAI_API_KEY,
 )
 
+system_prompt = cast(
+    "str",
+    load_prompt("rag_agent_system_prompt").format(
+        num_sentences=4,
+        max_sentences=4,
+    ),
+)
+
 rag_agent = Agent(
     model=OpenAIChatModel(
         MODEL,
-        provider=OpenAIProvider(openai_client=azure_client),
+        provider=AzureProvider(openai_client=azure_client),  # type: ignore[call-overload]
     ),
-    system_prompt="You are an animal expert who loves helping young pet owners (ages 10-15).",
+    system_prompt=system_prompt,
     output_type=RagResponse,
 )
 
