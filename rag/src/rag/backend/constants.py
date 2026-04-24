@@ -2,6 +2,12 @@ import os
 from pathlib import Path
 
 import mlflow
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+# Navigate from backend dir up to project root where .env is located
+env_path = Path(__file__).parents[3] / ".env"
+load_dotenv(dotenv_path=env_path)
 
 ROOT_PATH = Path(__file__).parents[1]
 DATA_PATH = ROOT_PATH / "data"

@@ -1,19 +1,20 @@
-from pathlib import Path
-
-from dotenv import load_dotenv
 from fastapi import FastAPI
 
-# Load environment variables before any other imports
-env_path = Path(__file__).parents[3] / ".env"
-load_dotenv(env_path)
-
-from rag.backend.agents import bot_answer  # noqa: E402
-from rag.backend.data_models import Prompt, RagResponse  # noqa: E402
+from .agents import bot_answer
+from .data_models import Prompt, RagResponse
+from .middleware import logging_middleware
 
 app = FastAPI()
+logging_middleware(app=app)
+
+
+@app.get("/")
+async def status() -> dict[str, str]:
+    return {"status": "it works"}
 
 
 @app.post("/rag/query")
-async def query_documentation(query: Prompt) -> RagResponse:
-    """Query the RAG system using Azure OpenAI."""
-    return await bot_answer(query.prompt)
+async def query_documentation(query: Prompt) -> RagResponse | str:
+    result = await bot_answer(query.prompt)
+
+    return result

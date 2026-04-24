@@ -1,7 +1,17 @@
 import os
+import warnings
+from pathlib import Path
 
 import httpx
 import streamlit as st
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+env_path = Path(__file__).parents[3] / ".env"
+load_dotenv(dotenv_path=env_path)
+
+# Suppress authlib deprecation warning
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="authlib")
 
 API_URL = os.getenv("API_URL", "http://localhost:8000/rag/query")
 
@@ -23,14 +33,18 @@ def layout() -> None:
                 response.raise_for_status()
                 data = response.json()
 
-                st.markdown("## Question:")
-                st.markdown(text_input)
+                # Handle both error string and success dict responses
+                if isinstance(data, str):
+                    st.error(f"Agent error: {data}")
+                else:
+                    st.markdown("## Question:")
+                    st.markdown(text_input)
 
-                st.markdown("## Answer:")
-                st.markdown(data["answer"])
+                    st.markdown("## Answer:")
+                    st.markdown(data["answer"])
 
-                st.markdown("## Source:")
-                st.markdown(data["filepath"])
+                    st.markdown("## Source:")
+                    st.markdown(data["filepath"])
             except httpx.TimeoutException:
                 st.error("Request timed out. Please try again.")
             except httpx.HTTPError as e:
