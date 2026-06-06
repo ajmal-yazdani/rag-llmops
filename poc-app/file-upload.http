@@ -1,0 +1,71 @@
+### ============================================================
+### UDC File Upload — 4-Step API (REST Client / VS Code .http)
+### ============================================================
+
+### Variables — fill these in
+@authority = https://builder-federated-identity-sit.honeywellforge.com
+@tokenServiceBase = https://dis.lss.qa.honeywellforge.com
+@siteId = 3a91df7d-eca4-49a9-b0af-2c5f35a2fc7b
+@username = lss-dp01-sit-bg-svc
+@password = 7973a5cb-39b6-401e-a1cf-72adaf3ee3dd
+@filePath = C:\AI\FILES\UDC_TS_SPA2K12_20260506043457965_1_R170.1.txt
+
+### ============================================================
+### Step 1 — Obtain Access Token
+### ============================================================
+# @name getToken
+POST {{authority}}/oauth2/token
+Authorization: Basic {{username}}:{{password}}
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&scope=builder.access
+
+### Save token from response
+@accessToken = {{getToken.response.body.access_token}}
+
+### ============================================================
+### Step 2 — Get Upload Connection Details (SAS URL)
+### ============================================================
+# @name getUploadDetails
+POST {{tokenServiceBase}}/Token/v2/GetSiteSpecificStorageAccessSignatureConnectionString
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "SiteID": "{{siteId}}"
+}
+
+### Save connection string and path from response
+@connectionString = {{getUploadDetails.response.body.connectionString}}
+@uploadPath = {{getUploadDetails.response.body.path}}
+
+### ============================================================
+### Step 3 — Upload File to Blob Storage
+### ============================================================
+### After running Step 2, copy the connectionString from the response
+### and replace [#FILENAME#] with your actual filename below:
+@uploadUrl = https://storage.lss.qa.honeywellforge.com/lss-dp01-sit/3a91df7d-eca4-49a9-b0af-2c5f35a2fc7b/ES/5-21-2026/5/UDC_TS_SPA2K12_20260506043457965_1_R170.1.txt?sv=2018-03-28&sr=c&sig=KMPCO42VmkG3mATNSgQr5urUh2QWDQYkJhHck0UHhjk%3D&se=2026-05-21T11%3A41%3A48Z&sp=rcwl
+
+# @name uploadFile
+PUT {{uploadUrl}}
+x-ms-blob-type: BlockBlob
+Content-Type: application/octet-stream
+
+< {{filePath}}
+
+### ============================================================
+### Step 4 — Send Completion Event
+### ============================================================
+### This triggers server-side decryption if file is encrypted
+# @name fileUploadCompleted
+POST {{tokenServiceBase}}/Token/v2/FileUploadCompleted
+Authorization: Bearer {{accessToken}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "SiteID": "{{siteId}}",
+  "FileName": "UDC_TS_SPA2K12_20260506043457965_1_R170.1.txt",
+  "Path": "{{uploadPath}}"
+}
