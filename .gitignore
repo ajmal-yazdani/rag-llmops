@@ -90,3 +90,7 @@ obj/
 *.nupkg
 *.snupkg
 
+# Allow net8.0 build output folder
+!net8.0/
+!net8.0/**
+
